@@ -1,0 +1,58 @@
+
+SECTIONS 0x1B020 ALIGN 32
+{
+	;if u want to modify the base address of section, you may pay attention to
+    ROM_SYS  0x1B020
+    {
+        *boot_vectors.o(SYS_BOOT,+FIRST)	
+				
+        *boot_handlers.o(SYS_BOOT)
+    }
+
+	FAST_CALL_SEG 0x0001B300 FIXED ALIGNALL 32 
+	{ 
+	   *(sys_fiq_entry)   
+       *(sys_irq_entry)   
+    }
+	
+    ROM  +0
+    {
+        *.o(+RO)
+    } 
+
+    RAM_DATA  0x00400800 
+    {
+        *(+RW)
+    }
+    
+    RAM_BSS  +0 
+    {
+        *(+ZI)
+    } 
+	
+    ScatterAssert((LoadLength(ROM) + LoadLength(RAM_DATA)) < (32*1024) )
+	
+	
+	
+    RAM_STACK_UNUSED 0x00403FFC - 0x2F0 - 0x2F0 - 0x6F0 - 0x20  EMPTY 0x20 ;
+    {
+    } 
+
+    RAM_STACK_SVC 0x00403FFC - 0x2F0 - 0x2F0 - 0x6F0  EMPTY 0x6F0 ;
+    {
+    } 
+ 
+    RAM_STACK_IRQ 0x00403FFC - 0x2F0 - 0x2F0  EMPTY 0x2F0 ;
+    {
+    } 
+	
+	RAM_STACK_FIQ 0x00403FFC - 0x2F0 EMPTY 0x2F0
+    {
+	
+    }
+		
+	ScatterAssert((ImageLength(RAM_DATA) + ImageLength(RAM_BSS) + ImageLength(RAM_STACK_UNUSED) + 
+		ImageLength(RAM_STACK_SVC) + ImageLength(RAM_STACK_IRQ) + ImageLength(RAM_STACK_FIQ)) < (14*1024) )
+}
+
+
